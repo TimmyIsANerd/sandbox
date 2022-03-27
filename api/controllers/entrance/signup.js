@@ -36,7 +36,7 @@ the account verification message.)`,
     },
 
     fullName:  {
-      required: true,
+      required: false,
       type: 'string',
       example: 'Frida Kahlo de Rivera',
       description: 'The user\'s full name.',
@@ -63,17 +63,25 @@ the account verification message.)`,
       description: 'The provided email address is already in use.',
     },
 
+    passwordTooShort:{
+      statusCode:409,
+      description:'Password less than 8 Characters'
+    }
+
   },
 
 
-  fn: async function ({emailAddress, password, fullName}) {
+  fn: async function ({emailAddress, password}) {
 
     var newEmailAddress = emailAddress.toLowerCase();
+
+    if(password.length < 8){
+      throw 'passwordTooShort'
+    }
 
     // Build up data for the new user record and save it to the database.
     // (Also use `fetch` to retrieve the new ID so that we can use it below.)
     var newUserRecord = await User.create(_.extend({
-      fullName,
       emailAddress: newEmailAddress,
       password: await sails.helpers.passwords.hashPassword(password),
       tosAcceptedByIp: this.req.ip
@@ -114,7 +122,7 @@ the account verification message.)`,
         subject: 'Please confirm your account',
         template: 'email-verify-account',
         templateData: {
-          fullName,
+          emailAddress,
           token: newUserRecord.emailProofToken
         }
       });
