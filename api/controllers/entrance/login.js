@@ -15,13 +15,6 @@ password attempt.`,
 
 
   inputs: {
-
-    emailAddress: {
-      description: 'The email to try in this attempt, e.g. "irl@example.com".',
-      type: 'string',
-      required: true
-    },
-
     password: {
       description: 'The unencrypted password to try in this attempt, e.g. "passwordlol".',
       type: 'string',
@@ -34,7 +27,15 @@ password attempt.`,
 `Note that this is NOT SUPPORTED when using virtual requests (e.g. sending
 requests over WebSockets instead of HTTP).`,
       type: 'boolean'
-    }
+    },
+
+    sandBoxEmailAddress: {
+      type: "string",
+      required: true,
+      unique: true,
+      isEmail: true,
+      example: "admin@sandbox.com",
+    },
 
   },
 
@@ -69,13 +70,13 @@ and exposed as \`req.me\`.)`
   },
 
 
-  fn: async function ({emailAddress, password, rememberMe}) {
+  fn: async function ({sandBoxEmailAddress, password, rememberMe}) {
 
     // Look up by the email address.
     // (note that we lowercase it to ensure the lookup is always case-insensitive,
     // regardless of which database we're using)
     var userRecord = await User.findOne({
-      emailAddress: emailAddress.toLowerCase(),
+      sandBoxEmailAddress: sandBoxEmailAddress.toLowerCase(),
     });
 
     // If there was no matching user, respond thru the "badCombo" exit.
