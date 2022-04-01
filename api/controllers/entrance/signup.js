@@ -71,6 +71,11 @@ module.exports = {
       statusCode: 409,
       description: "Username too long, choose less than 15 Characters",
     },
+
+    usernameAlreadyTaken:{
+      statusCode:409,
+      description: "Username already taken, please choose a different username",
+    },
   },
 
   fn: async function ({ username, emailAddress, password }) {
@@ -85,7 +90,15 @@ module.exports = {
     }
 
     var newUsername = username.toLowerCase();
+
     const sandBoxEmailAddress = `${newUsername + '@sandbox.com'}`
+
+    var usernameCheck = await User.findOne({newUsername})
+
+    if(usernameCheck){
+      throw "usernameAlreadyTaken";
+    }
+
 
     // Build up data for the new user record and save it to the database.
     // (Also use `fetch` to retrieve the new ID so that we can use it below.)
